@@ -866,15 +866,19 @@ from flask import Flask
 app = Flask(__name__)
 
 
+
 @app.route('/')
 def home():
     return 'Welcome to the home page!'
 
 
+
 def authenticate(func):
     def wrapper(*args, **kwargs):
+
         
         is_authenticated = True  
+        
         if is_authenticated:
             return func(*args, **kwargs)
         else:
@@ -883,10 +887,12 @@ def authenticate(func):
     return wrapper
 
 
+
 @app.route('/dashboard')
 @authenticate
 def dashboard():
     return 'Welcome to the dashboard!'
+
 
 
 if __name__ == '__main__':
@@ -936,3 +942,42 @@ Output of the decorated function
 Hello, Alice!
 Hello, Alice!
  Hello, Alice!'''
+
+#                                      Question =25
+def overload(func):
+    registry = {}
+
+    def register(*types):
+        def decorator(f):
+            registry[types] = f
+            return f
+        return decorator
+
+    def dispatcher(*args, **kwargs):
+        types = tuple(type(arg) for arg in args)
+        return registry[types](*args, **kwargs)
+
+    func.register = register
+    func.dispatcher = dispatcher
+    return func
+
+
+@overload
+def calculate(*args, **kwargs):
+    """Calculate method with method overloading."""
+    pass
+
+@calculate.register(int, int)
+def calculate_int_int(x, y):
+    return x + y
+
+@calculate.register(str, str)
+def calculate_str_str(s1, s2):
+    return s1 + s2
+
+
+result1 = calculate(1, 2)
+result2 = calculate('Hello', ' World')
+'''
+result1 = calculate(1, 2)        
+result2 = calculate('Hello', ' World') '''
